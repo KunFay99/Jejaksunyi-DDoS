@@ -117,3 +117,5 @@ if __name__ == "__main__":
     if attack_type == 'HTTP':
         asyncio.run(http_flood_attack(target_ip, target_port, duration))
 
+if __name__ == "__main__":
+    ("main")
