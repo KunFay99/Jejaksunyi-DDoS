@@ -116,5 +116,31 @@ if __name__ == "__main__":
         tcp_syn_attack(target_ip, target_port, duration)
     if attack_type == 'HTTP':
         asyncio.run(http_flood_attack(target_ip, target_port, duration))
+
+def _print_final_stats(self) -> None:
+        runtime = time.monotonic() - self._start_time
+        with self._lock:
+            s = self._stats
+        rps = s.requests / runtime if runtime > 0 else 0.0
+        ok_pct = s.successes / s.requests * 100 if s.requests else 0.0
+        err_pct = s.errors / s.requests * 100 if s.requests else 0.0
+        mb = s.bytes_sent / 1024 / 1024
+        mbps = mb * 8 / runtime if runtime > 0 else 0.0
+
+        sep = "=" * 58
+        print(f"\n{sep}")
+        print(f" Final Statistics")
+        print(sep)
+        print(f"  Target:            {self.cfg.url}")
+        print(f"  Runtime:           {runtime:.2f}s")
+        print(f"  Total requests:    {s.requests}")
+        print(f"  Successful:        {s.successes} ({ok_pct:.1f}%)")
+        print(f"  Failed:            {s.errors} ({err_pct:.1f}%)")
+        print(f"  Connection errors: {s.conn_errors}")
+        print(f"  Avg RPS:           {rps:.2f}")
+        print(f"  Data sent:         {mb:.2f} MB ({mbps:.2f} Mbps)")
+        print(sep)
+
+
         
         
